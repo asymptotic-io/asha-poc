@@ -32,6 +32,9 @@ int main(int argc, char **argv) {
 
   log_info("Connecting to %s\n", bd_addr);
 
+  sleep(1);
+  dbus_connect_device(bd_addr);
+
   while (1)
     loop_iterate();
 

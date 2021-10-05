@@ -92,9 +92,19 @@ int dbus_init(int loop_fd) {
     return 1;
   }
 
-  dbus_connection_set_watch_functions(conn, add_watch, remove_watch, toggle_watch, &l, free_watch);
-
+  dbus_connection_set_watch_functions(conn, add_watch, remove_watch,
+                                      toggle_watch, &l, free_watch);
 
   return 0;
 }
 
+int dbus_connect_device(const char *bd_addr) {
+  char path[100];
+  snprintf(path, 100, "/org/bluez/hci0/dev_%s", bd_addr);
+  log_debug("Connecting to path: %s\n", path);
+  DBusMessage *message = dbus_message_new_method_call("org.bluez", path, "org.bluez.Device1",
+      "Connect");
+  dbus_connection_send(conn, message, NULL);
+
+  return 0;
+}
