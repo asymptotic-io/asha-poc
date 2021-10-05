@@ -1,12 +1,12 @@
+#include "dbus.h"
+#include "log.h"
+#include "loop.h"
+#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
-#include "dbus.h"
-#include "loop.h"
-#include "log.h"
 
 #define EXECUTABLE_NAME "asha-support"
 
@@ -23,12 +23,16 @@ int main(int argc, char **argv) {
   char bd_addr[20];
   strncpy(bd_addr, argv[1], 20);
 
-  loop_init();
-  dbus_init();
+  int loop_fd = loop_init();
+  int dbus_err = dbus_init(loop_fd);
+  if (dbus_err != 0) {
+    log_info("Failed to initialize dbus: Error %d\n", dbus_err);
+    return 1;
+  }
 
   log_info("Connecting to %s\n", bd_addr);
 
-  while(1)
+  while (1)
     loop_iterate();
 
   return 0;

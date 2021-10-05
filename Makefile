@@ -23,10 +23,10 @@ LDFLAGS=-lpthread
 all: $(EXE)
 
 $(EXE): $(OBJ) | $(BIN_DIR)
-	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $^ $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) -c $< $(CFLAGS) -o $@
 
 $(BIN_DIR):
 	mkdir -p $@

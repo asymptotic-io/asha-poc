@@ -1,6 +1,6 @@
-struct {
+struct loop_data {
   int loop_fd;
-} loop_data;
+};
 
-void loop_init();
+int loop_init();
 void loop_iterate();
