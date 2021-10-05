@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "dbus.h"
+#include "loop.h"
 #include "log.h"
 
 #define EXECUTABLE_NAME "asha-support"
@@ -22,8 +23,13 @@ int main(int argc, char **argv) {
   char bd_addr[20];
   strncpy(bd_addr, argv[1], 20);
 
+  loop_init();
   dbus_init();
+
   log_info("Connecting to %s\n", bd_addr);
+
+  while(1)
+    loop_iterate();
 
   return 0;
 }
