@@ -1,0 +1,1 @@
+void dbus_init();
