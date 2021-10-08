@@ -2,7 +2,7 @@
 #include <sys/epoll.h>
 
 #define MAX_EVENTS_PER_ITERATION 10
-#define ITERATION_TIMEOUT_MS 1000
+#define ITERATION_TIMEOUT_MS 5000
 
 static int loop_fd;
 

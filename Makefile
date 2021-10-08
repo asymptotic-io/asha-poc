@@ -13,10 +13,11 @@ OBJ := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
 CFLAGS+=-DDEBUG -g
 CFLAGS+=-Iinclude
 CFLAGS+=-g -Wall -Wextra
-CFLAGS+=$(shell pkg-config --libs --cflags dbus-1)
+CFLAGS+=$(shell pkg-config --cflags dbus-1)
 
 LDFLAGS=$(shell pkg-config --libs dbus-1)
-LDFLAGS=-lpthread
+LDFLAGS+=-lpthread
+LDFLAGS+=-lbluetooth
 
 .PHONY: all
 
