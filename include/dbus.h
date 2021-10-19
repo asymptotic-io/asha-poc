@@ -12,8 +12,6 @@ void remove_watch(DBusWatch *watch, void *data);
 void toggle_watch(DBusWatch *watch, void *data);
 void free_watch(void *mem);
 int dbus_connect_device(const char *bd_addr);
-void dbus_read_characteristic(char *bd_addr);
-uint16_t dbus_read_psm(char *bd_addr);
 
 enum control_point_operation { START, STOP, STATUS };
 
@@ -33,6 +31,8 @@ struct audio_control_point {
 };
 
 void dbus_write_audio_control_point(struct audio_control_point control_point);
+
+void find_devices(uint32_t service_uuid_prefix);
 
 #else
 #endif
