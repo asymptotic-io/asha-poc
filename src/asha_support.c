@@ -40,7 +40,13 @@ int main(int argc, char **argv) {
   dbus_connect_device(bd_addr);
   log_info("Connected to %s\n", bd_addr);
 
-  find_devices(0x0000fdf0);
+  struct ha_device **devices = find_devices();
+
+  // Assuming we want to start with the first device for now
+  // if it exists
+  if (*devices != NULL) {
+    dbus_audio_control_point_start(*devices);
+  }
 
   while (1)
     loop_iterate();

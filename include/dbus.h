@@ -13,26 +13,14 @@ void toggle_watch(DBusWatch *watch, void *data);
 void free_watch(void *mem);
 int dbus_connect_device(const char *bd_addr);
 
-enum control_point_operation { START, STOP, STATUS };
+struct ha_device **find_devices();
 
-struct audio_control_point {
-  enum control_point_operation operation;
-  union control_point_args {
-    struct control_point_start {
-      uint8_t codec;
-      uint8_t audiotype;
-      uint8_t volume;
-      uint8_t otherstate;
-    } start;
-    struct control_point_status {
-      uint8_t connected;
-    } status;
-  } args;
-};
+enum AudioControlPoint { START = 0x01, STOP = 0x02, STATUS = 0x03 };
+enum Codec { G722_16K_HZ = 0x01 };
+enum AudioType { UNKNOWN = 0, RINGTONE = 1, PHONECALL = 2, MEDIA = 3 };
+enum OtherState { DISCONNECTED = 0, CONNECTED = 1 };
 
-void dbus_write_audio_control_point(struct audio_control_point control_point);
-
-void find_devices(uint32_t service_uuid_prefix);
+void dbus_audio_control_point_start(struct ha_device *device);
 
 #else
 #endif

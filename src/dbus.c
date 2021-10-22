@@ -125,6 +125,27 @@ static void create_read_characteristic_container(DBusMessageIter *iter) {
   dbus_message_iter_close_container(iter, &dict);
 }
 
+static void create_write_characteristic_container(DBusMessageIter *iter,
+                                                  uint8_t *data,
+                                                  unsigned int len) {
+  DBusMessageIter dict, data_iter;
+
+  dbus_message_iter_open_container(iter, DBUS_TYPE_ARRAY,
+                                   DBUS_TYPE_BYTE_AS_STRING, &data_iter);
+  for (int i = 0; i < len; i++)
+    dbus_message_iter_append_basic(&data_iter, DBUS_TYPE_BYTE, data + i);
+
+  dbus_message_iter_close_container(iter, &data_iter);
+
+  dbus_message_iter_open_container(
+      iter, DBUS_TYPE_ARRAY,
+      DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING DBUS_TYPE_STRING_AS_STRING
+          DBUS_TYPE_VARIANT_AS_STRING DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
+      &dict);
+
+  dbus_message_iter_close_container(iter, &dict);
+}
+
 void debug_properties(struct ha_properties *ro_properties) {
   uint8_t ro_properties_bytes[17];
   memcpy(ro_properties_bytes, ro_properties, 17);
@@ -498,7 +519,39 @@ DBusMessage *get_objects() {
   return reply;
 }
 
-void find_devices(uint32_t service_uuid_prefix) {
+void dbus_audio_control_point_start(struct ha_device *device) {
+  log_info("Writing to %s\n", device->dbus_paths.audio_control_point_path);
+  char *bus_name = "org.bluez";
+  char *interface = "org.bluez.GattCharacteristic1";
+
+  uint8_t data[] = {START, G722_16K_HZ, MEDIA, 0, DISCONNECTED};
+
+  DBusMessage *m = dbus_message_new_method_call(
+                  bus_name, device->dbus_paths.audio_control_point_path,
+                  interface, "WriteValue"),
+              *reply;
+  DBusMessageIter iter;
+
+  dbus_error_init(&err);
+  dbus_message_iter_init_append(m, &iter);
+  create_write_characteristic_container(&iter, data, 5);
+
+  reply = dbus_connection_send_with_reply_and_block(conn, m, 500, &err);
+  if (dbus_error_is_set(&err)) {
+    log_info("Error: failed to write AudioControlPoint: %s\n",
+             dbus_message_get_error_name(reply));
+    return;
+  }
+
+  if (dbus_message_get_type(reply) == DBUS_MESSAGE_TYPE_ERROR) {
+    log_info("Error: error writing AudioControlPoint\n");
+    return;
+  }
+
+  log_info("AudioControlPoint Written\n");
+}
+
+struct ha_device **find_devices() {
   /*
    * Send a message to ObjectManager
    * GetManagedObjects
@@ -516,7 +569,7 @@ void find_devices(uint32_t service_uuid_prefix) {
   bzero(devices, sizeof(struct ha_device *) * 20);
 
   if (reply == NULL)
-    return;
+    return devices;
 
   dbus_message_iter_init(reply, &iter);
   assert(dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_ARRAY);
@@ -535,6 +588,7 @@ void find_devices(uint32_t service_uuid_prefix) {
 
   fetch_and_populate_characteristic_paths(devices);
   log_info("Done.\n");
+  return devices;
 }
 
 /*
