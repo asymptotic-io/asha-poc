@@ -460,7 +460,7 @@ fetch_and_populate_characteristic_paths(struct ha_device **devices) {
   }
 }
 
-int scan_object2(DBusMessageIter *iter, struct ha_device **devices) {
+int add_if_ha_service(DBusMessageIter *iter, struct ha_device **devices) {
   DBusMessageIter dict_entries, dict_entry;
   char *object_path;
   struct ha_device *device, **device_iter = devices;
@@ -579,7 +579,7 @@ struct ha_device **find_devices() {
          DBUS_TYPE_DICT_ENTRY) {
     dbus_message_iter_recurse(&dict_entries, &dict_entry);
 
-    scan_object2(&dict_entry, devices);
+    add_if_ha_service(&dict_entry, devices);
 
     if (!dbus_message_iter_has_next(&dict_entries))
       break;
