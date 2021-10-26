@@ -52,12 +52,19 @@ struct ha_dbus_paths {
   char le_psm_out_path[DBUS_PATH_LIMIT];
 };
 
+enum ConnectionStatus { DISCONNECTED = 0, CONNECTED = 1 };
+
 struct ha_device {
   struct ha_dbus_paths dbus_paths;
 
   // fields containing data fetched from the paths above
   struct ha_properties properties;
   uint16_t le_psm;
+
+  // state information
+  enum ConnectionStatus connection_status;
+  uint8_t sequence_counter;
+  int socket;
 };
 
 struct ha_pair {

@@ -27,8 +27,9 @@ static void setopts(int s) {
   }
 }
 
-void l2cap_connect(char *bd_addr_raw, uint16_t psm) {
-  int s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP), status;
+int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
+  int s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP);
+  int status;
   if (s == -1) {
     log_info("L2CAP: Could not create a socket %s:%u. %s (%d)\n", bd_addr_raw,
              psm, strerror(errno), errno);
@@ -61,6 +62,5 @@ void l2cap_connect(char *bd_addr_raw, uint16_t psm) {
   else
     log_info("L2CAP: Could not connect to %s:%u. Error %d. %d (%s)\n", bd_addr,
              psm, status, errno, strerror(errno));
-
-  close(s);
+  return s;
 }
