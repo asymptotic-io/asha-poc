@@ -28,13 +28,14 @@ static void setopts(int s) {
 }
 
 int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
-  int s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP);
-  int status;
+  int s = socket(AF_BLUETOOTH, SOCK_STREAM | SOCK_NONBLOCK, BTPROTO_L2CAP);
+  int status = -1;
   if (s == -1) {
     log_info("L2CAP: Could not create a socket %s:%u. %s (%d)\n", bd_addr_raw,
              psm, strerror(errno), errno);
-  } else
+  } else {
     log_info("L2CAP: Created socket %s:%u\n", bd_addr_raw, psm);
+  }
 
   struct sockaddr_l2 addr = {0};
   addr.l2_family = AF_BLUETOOTH;
@@ -57,10 +58,12 @@ int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
   setopts(s);
   status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
 
-  if (status == 0)
+  if (status == 0) {
     log_info("L2CAP: Connected to %s:%u\n", bd_addr, psm);
-  else
+  } else {
     log_info("L2CAP: Could not connect to %s:%u. Error %d. %d (%s)\n", bd_addr,
              psm, status, errno, strerror(errno));
+  }
+
   return s;
 }

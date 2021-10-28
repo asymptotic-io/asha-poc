@@ -18,7 +18,7 @@ struct ha_device **find_devices();
 enum AudioControlPoint { START = 0x01, STOP = 0x02, STATUS = 0x03 };
 enum Codec { G722_16K_HZ = 0x01 };
 enum AudioType { UNKNOWN = 0, RINGTONE = 1, PHONECALL = 2, MEDIA = 3 };
-enum OtherState { DISCONNECTED = 0, CONNECTED = 1 };
+enum OtherState { OTHER_DISCONNECTED = 0, OTHER_CONNECTED = 1 };
 
 void dbus_audio_control_point_start(struct ha_device *device);
 

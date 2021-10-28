@@ -2,6 +2,7 @@
 #include "dbus.h"
 #include "log.h"
 #include "loop.h"
+#include "streaming.h"
 #include <pthread.h>
 #include <signal.h>
 #include <stdint.h>
@@ -44,9 +45,13 @@ int main(int argc, char **argv) {
 
   // Assuming we want to start with the first device for now
   // if it exists
-  if (*devices != NULL) {
-    dbus_audio_control_point_start(*devices);
+  if (*devices == NULL) {
+    log_info("Could not find the device\n");
+    return 1;
   }
+
+  dbus_audio_control_point_start(*devices);
+  stream_init(bd_addr, *devices);
 
   while (1)
     loop_iterate();

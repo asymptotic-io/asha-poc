@@ -5,7 +5,8 @@ project('asha-support', 'c',
 src = ['src/asha_support.c',
         'src/dbus.c',
         'src/bluez.c',
-        'src/loop.c']
+        'src/loop.c',
+        'src/streaming.c']
 incdir = include_directories('include')
 
 pthread_lib = dependency('threads')

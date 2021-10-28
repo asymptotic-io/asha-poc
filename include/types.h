@@ -1,5 +1,8 @@
 #include <stdint.h>
 
+#ifndef ASHA_SUPPORT_TYPES_H
+#define ASHA_SUPPORT_TYPES_H
+
 struct ha_device_capabilities {
   uint8_t side : 1;
   uint8_t type : 1;
@@ -78,3 +81,5 @@ struct ha_pairs {
   struct ha_pair pairs[MAX_HA_PAIRS];
   uint8_t length;
 };
+
+#endif

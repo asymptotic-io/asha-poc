@@ -6,8 +6,14 @@ struct loop_data {
   int loop_fd;
 };
 
+struct event_data {
+  int fd;
+  void *handler();
+};
+
 int loop_init();
 void loop_iterate();
+void loop_add(int fd);
 
 #else
 #endif

@@ -24,6 +24,8 @@ void free_watch(void *mem) {
   free(mem);
 }
 
+void handle_dbus_event(void *p) { log_info("Received a DBus event\n"); }
+
 dbus_bool_t add_watch(DBusWatch *watch, void *data) {
   struct loop_data *l = data;
   struct epoll_event event = {0};
@@ -37,7 +39,7 @@ dbus_bool_t add_watch(DBusWatch *watch, void *data) {
   new_wd->active = TRUE;
 
   event.events = EPOLLIN;
-  event.data.fd = 0; // Unsure as to whether this needs to even be anything
+  event.data.ptr = &data; // Unsure as to whether this needs to even be anything
 
   epoll_ctl(l->loop_fd, EPOLL_CTL_ADD, dbus_watch_get_unix_fd(watch), &event);
   dbus_watch_set_data(watch, (void *)new_wd, free_watch);
@@ -315,6 +317,8 @@ struct ha_device *is_ha_service(DBusMessageIter *iter) {
       dbus_message_iter_get_basic(&sub, &value);
 
       device = malloc(sizeof(struct ha_device));
+      // Presumably, this is true if we can discover the service
+      device->connection_status = CONNECTED;
       bzero(device, sizeof(struct ha_device));
       strncpy(device->dbus_paths.device_path, value, 100);
     }
@@ -524,7 +528,7 @@ void dbus_audio_control_point_start(struct ha_device *device) {
   char *bus_name = "org.bluez";
   char *interface = "org.bluez.GattCharacteristic1";
 
-  uint8_t data[] = {START, G722_16K_HZ, MEDIA, 0, DISCONNECTED};
+  uint8_t data[] = {START, G722_16K_HZ, MEDIA, 0, OTHER_DISCONNECTED};
 
   DBusMessage *m = dbus_message_new_method_call(
                   bus_name, device->dbus_paths.audio_control_point_path,
