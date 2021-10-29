@@ -3,17 +3,16 @@
 #define ASHA_SUPPORT_LOOP_H
 
 struct loop_data {
-  int loop_fd;
+  int fd;
+  void (*handler)(struct loop_data *);
+  void *payload;
 };
 
-struct event_data {
-  int fd;
-  void *handler();
-};
+struct event_data {};
 
 int loop_init();
 void loop_iterate();
-void loop_add(int fd);
+void loop_add(int fd, void (*handler)(struct loop_data *), void *payload);
 
 #else
 #endif

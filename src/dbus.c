@@ -24,11 +24,14 @@ void free_watch(void *mem) {
   free(mem);
 }
 
-void handle_dbus_event(void *p) { log_info("Received a DBus event\n"); }
+void handle_dbus_event(struct loop_data *loop_data) {
+  log_info("Received a DBus event\n");
+}
 
 dbus_bool_t add_watch(DBusWatch *watch, void *data) {
-  struct loop_data *l = data;
+  int *loop_fd = data;
   struct epoll_event event = {0};
+  struct loop_data *loop_data = malloc(sizeof(struct loop_data));
   struct watch_data *wd = dbus_watch_get_data(watch);
 
   if ((wd != NULL) && wd->active) {
@@ -38,17 +41,21 @@ dbus_bool_t add_watch(DBusWatch *watch, void *data) {
   struct watch_data *new_wd = malloc(sizeof(struct watch_data));
   new_wd->active = TRUE;
 
-  event.events = EPOLLIN;
-  event.data.ptr = &data; // Unsure as to whether this needs to even be anything
+  loop_data->fd = 0;
+  loop_data->handler = handle_dbus_event;
+  loop_data->payload = NULL;
 
-  epoll_ctl(l->loop_fd, EPOLL_CTL_ADD, dbus_watch_get_unix_fd(watch), &event);
+  event.events = EPOLLIN;
+  event.data.ptr = &loop_data;
+
+  epoll_ctl(*loop_fd, EPOLL_CTL_ADD, dbus_watch_get_unix_fd(watch), &event);
   dbus_watch_set_data(watch, (void *)new_wd, free_watch);
 
   return TRUE;
 }
 
 void remove_watch(DBusWatch *watch, void *data) {
-  struct loop_data *l = data;
+  int *loop_fd = data;
   struct epoll_event event;
 
   struct watch_data *wd = dbus_watch_get_data(watch);
@@ -60,11 +67,11 @@ void remove_watch(DBusWatch *watch, void *data) {
 
   event.events = EPOLLIN;
   event.data.fd = 0; // Unsure as to whether this needs to even be anything
-  epoll_ctl(l->loop_fd, EPOLL_CTL_DEL, dbus_watch_get_unix_fd(watch), &event);
+  epoll_ctl(*loop_fd, EPOLL_CTL_DEL, dbus_watch_get_unix_fd(watch), &event);
 }
 
 void toggle_watch(DBusWatch *watch, void *data) {
-  struct loop_data *l = data;
+  int *loop_fd = data;
   struct epoll_event event = {0};
 
   if (dbus_watch_get_enabled(watch)) {
@@ -74,7 +81,7 @@ void toggle_watch(DBusWatch *watch, void *data) {
     event.events = EPOLLIN;
     event.data.fd = 0; // Unsure as to whether this needs to even be anything
 
-    epoll_ctl(l->loop_fd, EPOLL_CTL_DEL, dbus_watch_get_unix_fd(watch), &event);
+    epoll_ctl(*loop_fd, EPOLL_CTL_DEL, dbus_watch_get_unix_fd(watch), &event);
     log_info("dbus: Watch toggled on");
   } else {
     log_info("dbus: Watch toggled off");
@@ -82,8 +89,8 @@ void toggle_watch(DBusWatch *watch, void *data) {
 }
 
 int dbus_init(int loop_fd) {
-  struct loop_data *l = malloc(sizeof(struct loop_data));
-  l->loop_fd = loop_fd;
+  int *loop_fd_ref = malloc(sizeof(int));
+  *loop_fd_ref = loop_fd;
   dbus_error_init(&err);
 
   conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
@@ -99,7 +106,7 @@ int dbus_init(int loop_fd) {
   }
 
   dbus_connection_set_watch_functions(conn, add_watch, remove_watch,
-                                      toggle_watch, l, free_watch);
+                                      toggle_watch, loop_fd_ref, free_watch);
 
   return 0;
 }
