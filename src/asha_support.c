@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
   sleep(1);
   dbus_connect_device(bd_addr);
   log_info("Connected to %s\n", bd_addr);
+  sleep(1);
 
   struct ha_device **devices = find_devices();
 
@@ -51,10 +52,13 @@ int main(int argc, char **argv) {
   }
 
   dbus_audio_control_point_start(*devices);
+  sleep(3);
   stream_init(bd_addr, *devices);
 
-  while (1)
+  while (1) {
+    sleep(1);
     loop_iterate();
+  }
 
   return 0;
 }

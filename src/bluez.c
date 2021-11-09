@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <stdint.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -14,7 +15,7 @@ static void setopts(int s) {
   err = getsockopt(s, SOL_L2CAP, L2CAP_OPTIONS, &opts, &size);
 
   if (!err) {
-    opts.omtu = opts.imtu = 167;
+    opts.omtu = opts.imtu = 202;
     log_info("Setting sockopts\n");
     err = setsockopt(s, SOL_L2CAP, L2CAP_OPTIONS, &opts, size);
     if (!err)
@@ -30,6 +31,7 @@ static void setopts(int s) {
 int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
   int s = socket(AF_BLUETOOTH, SOCK_STREAM | SOCK_NONBLOCK, BTPROTO_L2CAP);
   int status = -1;
+
   if (s == -1) {
     log_info("L2CAP: Could not create a socket %s:%u. %s (%d)\n", bd_addr_raw,
              psm, strerror(errno), errno);

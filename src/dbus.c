@@ -198,7 +198,7 @@ static void dbus_read_ro_properties(char *path,
   dbus_message_iter_init_append(m, &iter);
   create_read_characteristic_container(&iter);
 
-  reply = dbus_connection_send_with_reply_and_block(conn, m, 500, error);
+  reply = dbus_connection_send_with_reply_and_block(conn, m, 5000, error);
   if (dbus_error_is_set(error)) {
     log_info("Error: failed to read ReadOnlyProperties\n");
     return;
@@ -241,7 +241,7 @@ void dbus_read_psm(char *path, uint16_t *spsm, DBusError *error) {
   dbus_message_iter_init_append(m, &iter);
   create_read_characteristic_container(&iter);
 
-  reply = dbus_connection_send_with_reply_and_block(conn, m, 500, &err);
+  reply = dbus_connection_send_with_reply_and_block(conn, m, 5000, &err);
   if (dbus_error_is_set(&err)) {
     log_info("Error: failed to read PSM\n");
     return;
@@ -510,7 +510,7 @@ DBusMessage *get_objects() {
 
   DBusMessage *reply;
 
-  reply = dbus_connection_send_with_reply_and_block(conn, m, 500, &err);
+  reply = dbus_connection_send_with_reply_and_block(conn, m, 5000, &err);
 
   if (dbus_error_is_set(&err)) {
     log_info("Error: failed to list objects with ObjectManager\n");
@@ -547,7 +547,7 @@ void dbus_audio_control_point_start(struct ha_device *device) {
   dbus_message_iter_init_append(m, &iter);
   create_write_characteristic_container(&iter, data, 5);
 
-  reply = dbus_connection_send_with_reply_and_block(conn, m, 500, &err);
+  reply = dbus_connection_send_with_reply_and_block(conn, m, 5000, &err);
   if (dbus_error_is_set(&err)) {
     log_info("Error: failed to write AudioControlPoint: %s\n",
              dbus_message_get_error_name(reply));
