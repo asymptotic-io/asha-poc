@@ -29,7 +29,7 @@ static void setopts(int s) {
 }
 
 int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
-  int s = socket(AF_BLUETOOTH, SOCK_STREAM | SOCK_NONBLOCK, BTPROTO_L2CAP);
+  int s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_L2CAP);
   int status = -1;
 
   if (s == -1) {
