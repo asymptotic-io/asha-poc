@@ -17,12 +17,6 @@ void handle_stream_event(struct loop_data *loop_data) {
   bzero(buf, 100);
 
   log_info("Received a stream event\n");
-
-  res = fcntl(loop_data->fd, F_GETFD);
-  res = write(loop_data->fd, buf, 50);
-
-  if (res < 0)
-    log_info("Write failed: %d (%s)\n", res, strerror(errno));
 }
 
 bool stream_init(char *bd_addr_raw, struct ha_device *device) {
