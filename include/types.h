@@ -71,6 +71,7 @@ struct ha_device {
 
   // streaming fields
   void *buffer;
+  void sample[160];
   int source;   // source fd to read from locally to write to the stream
   int sdulen;   // sdu len used for the l2cap connection
   int firstrun; // true if the first sdu hasn't been sent yet

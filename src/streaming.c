@@ -19,6 +19,8 @@ void handle_stream_event(struct loop_data *loop_data) {
 }
 
 bool stream_init(char *bd_addr_raw, struct ha_device *device) {
+  ssize_t bytes_processed = 0;
+
   device->sequence_counter = 0;
   device->socket = l2cap_connect(bd_addr_raw, device->le_psm);
   device->source = open("/tmp/sample.g722", O_RDONLY);
@@ -28,36 +30,42 @@ bool stream_init(char *bd_addr_raw, struct ha_device *device) {
   device->sdulen = 167;
   device->buffer = malloc(device->sdulen);
   bzero(device->buffer, device->sdulen);
+  bytes_processed = read(device->source, device->sample, 160);
 
+  if (bytes_processed < 0) {
+    log_info("File read failed: %zd (%s)\n", bytes_processed, strerror(errno));
+    return false;
+  }
   log_info("socket: %d\n", device->socket);
 
   loop_add(device->socket, handle_stream_event, NULL);
   return true;
 }
 
+uint8_t sample[200];
+
 void stream_act(struct ha_device *device) {
   size_t datalen = device->sdulen - 3;
-  size_t bytes_processed = 0;
+  ssize_t bytes_processed = 0;
 
   for (uint8_t i = 0; i < 200; i++) {
     if (device->firstrun) {
       memcpy(device->buffer, &device->sdulen, 2);
       memcpy(device->buffer + 2, &device->sequence_counter, 1);
-      bytes_processed = read(device->source, device->buffer + 3, datalen);
+      memcpy(&device->buffer + 3, device->sample);
       device->firstrun = 0;
     } else {
       memcpy(device->buffer, &device->sequence_counter, 1);
-      bytes_processed = read(device->source, &device->buffer + 1, datalen);
+      memcpy(&device->buffer + 1, device->sample);
     }
-    if (bytes_processed < 0) {
-      log_info("File read failed: %zu (%s)\n", bytes_processed,
-               strerror(errno));
-    }
+
     bytes_processed = write(device->socket, device->buffer, device->sdulen);
+
     if (bytes_processed < 0) {
-      log_info("Write failed: %zu (%s)\n", bytes_processed, strerror(errno));
-    } else {
-      device->sequence_counter++;
+      log_info("Write failed: %zd (%s)\n", bytes_processed, strerror(errno));
+      return;
     }
+
+    device->sequence_counter++;
   }
 }
