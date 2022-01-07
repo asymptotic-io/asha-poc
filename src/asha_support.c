@@ -43,17 +43,19 @@ int main(int argc, char **argv) {
   sleep(1);
 
   struct ha_device **devices = find_devices();
+  struct ha_device *device = *devices;
 
   // Assuming we want to start with the first device for now
   // if it exists
-  if (*devices == NULL) {
+  if (device == NULL) {
     log_info("Could not find the device\n");
     return 1;
   }
 
+  stream_init(bd_addr, device);
   dbus_audio_control_point_start(*devices);
+  stream_act(device);
   sleep(3);
-  stream_init(bd_addr, *devices);
 
   while (1) {
     sleep(1);

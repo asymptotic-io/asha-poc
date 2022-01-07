@@ -68,6 +68,12 @@ struct ha_device {
   enum ConnectionStatus connection_status;
   uint8_t sequence_counter;
   int socket;
+
+  // streaming fields
+  void *buffer;
+  int source;   // source fd to read from locally to write to the stream
+  int sdulen;   // sdu len used for the l2cap connection
+  int firstrun; // true if the first sdu hasn't been sent yet
 };
 
 struct ha_pair {

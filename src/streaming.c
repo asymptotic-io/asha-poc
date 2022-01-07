@@ -12,7 +12,6 @@
 #include <unistd.h>
 
 void handle_stream_event(struct loop_data *loop_data) {
-  int res = 0;
   void *buf = malloc(100);
   bzero(buf, 100);
 
@@ -20,33 +19,15 @@ void handle_stream_event(struct loop_data *loop_data) {
 }
 
 bool stream_init(char *bd_addr_raw, struct ha_device *device) {
-  int res = 0;
-  void *buf = malloc(200);
-  bzero(buf, 200);
-
   device->sequence_counter = 0;
   device->socket = l2cap_connect(bd_addr_raw, device->le_psm);
+  device->source = open("/tmp/sample.g722", O_RDONLY);
+  device->firstrun = 1;
 
-  int audio_src = open("/tmp/sample.g722", O_RDONLY);
-
-  uint16_t sdulen = 160;
-  for (uint8_t i = 0; i < 200; i++) {
-    if (i == 0) {
-      memcpy(buf, &sdulen, 2);
-      memcpy(buf + 2, &i, 1);
-      res = read(audio_src, buf + 3, 160);
-    } else {
-      memcpy(buf, &i, 1);
-      res = read(audio_src, buf + 1, 160);
-    }
-    if (res < 0) {
-      log_info("File read failed: %d (%s)\n", res, strerror(errno));
-    }
-    res = write(device->socket, buf, 160);
-    if (res < 0) {
-      log_info("Write failed: %d (%s)\n", res, strerror(errno));
-    }
-  }
+  // 1 byte for seq_counter and 2 for sdulen in the first sdu
+  device->sdulen = 167;
+  device->buffer = malloc(device->sdulen);
+  bzero(device->buffer, device->sdulen);
 
   log_info("socket: %d\n", device->socket);
 
@@ -54,13 +35,29 @@ bool stream_init(char *bd_addr_raw, struct ha_device *device) {
   return true;
 }
 
-bool stream_act(struct ha_device *device) {
-  if (device->connection_status != CONNECTED) {
-    return false;
-  }
+void stream_act(struct ha_device *device) {
+  size_t datalen = device->sdulen - 3;
+  size_t bytes_processed = 0;
 
-  while (true) {
+  for (uint8_t i = 0; i < 200; i++) {
+    if (device->firstrun) {
+      memcpy(device->buffer, &device->sdulen, 2);
+      memcpy(device->buffer + 2, &device->sequence_counter, 1);
+      bytes_processed = read(device->source, device->buffer + 3, datalen);
+      device->firstrun = 0;
+    } else {
+      memcpy(device->buffer, &device->sequence_counter, 1);
+      bytes_processed = read(device->source, &device->buffer + 1, datalen);
+    }
+    if (bytes_processed < 0) {
+      log_info("File read failed: %zu (%s)\n", bytes_processed,
+               strerror(errno));
+    }
+    bytes_processed = write(device->socket, device->buffer, device->sdulen);
+    if (bytes_processed < 0) {
+      log_info("Write failed: %zu (%s)\n", bytes_processed, strerror(errno));
+    } else {
+      device->sequence_counter++;
+    }
   }
-
-  return true;
 }
