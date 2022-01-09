@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
 
   stream_init(bd_addr, device);
   dbus_audio_control_point_start(*devices);
+  sleep(1);
   stream_act(device);
   sleep(3);
 

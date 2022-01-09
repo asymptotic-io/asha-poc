@@ -535,7 +535,7 @@ void dbus_audio_control_point_start(struct ha_device *device) {
   char *bus_name = "org.bluez";
   char *interface = "org.bluez.GattCharacteristic1";
 
-  uint8_t data[] = {START, G722_16K_HZ, MEDIA, 0, OTHER_DISCONNECTED};
+  uint8_t data[] = {START, G722_16K_HZ, UNKNOWN, 0, OTHER_DISCONNECTED};
 
   DBusMessage *m = dbus_message_new_method_call(
                   bus_name, device->dbus_paths.audio_control_point_path,

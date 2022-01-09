@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -27,9 +28,9 @@ bool stream_init(char *bd_addr_raw, struct ha_device *device) {
   device->firstrun = 1;
 
   // 1 byte for seq_counter and 2 for sdulen in the first sdu
-  device->sdulen = 167;
-  device->buffer = malloc(device->sdulen);
-  bzero(device->buffer, device->sdulen);
+  device->sdulen = 161;
+  device->buffer = malloc(device->sdulen + 2);
+  bzero(device->buffer, device->sdulen + 2);
   bytes_processed = read(device->source, device->sample, 160);
 
   if (bytes_processed < 0) {
@@ -42,28 +43,34 @@ bool stream_init(char *bd_addr_raw, struct ha_device *device) {
   return true;
 }
 
-uint8_t sample[200];
-
 void stream_act(struct ha_device *device) {
-  size_t datalen = device->sdulen - 3;
   ssize_t bytes_processed = 0;
+  struct iovec vec[] = { { .iov_base = device->buffer, .iov_len = device->sdulen } };
+  struct msghdr msg = { 0, };
 
-  for (uint8_t i = 0; i < 200; i++) {
+  msg.msg_iov = vec;
+  msg.msg_iovlen = 1;
+
+  for (uint8_t i = 0; i < 2000; i++) {
     if (device->firstrun) {
       memcpy(device->buffer, &device->sdulen, 2);
       memcpy(device->buffer + 2, &device->sequence_counter, 1);
-      memcpy(&device->buffer + 3, device->sample);
+      memcpy(&device->buffer + 3, device->sample, sizeof(device->sample));
       device->firstrun = 0;
+      msg.msg_iov[0].iov_len += 2;
+      bytes_processed = sendmsg(device->socket, &msg, 0);
+      msg.msg_iov[0].iov_len -= 2;
     } else {
       memcpy(device->buffer, &device->sequence_counter, 1);
-      memcpy(&device->buffer + 1, device->sample);
+      memcpy(&device->buffer + 1, device->sample, sizeof(device->sample));
+      bytes_processed = sendmsg(device->socket, &msg, 0);
     }
-
-    bytes_processed = write(device->socket, device->buffer, device->sdulen);
 
     if (bytes_processed < 0) {
       log_info("Write failed: %zd (%s)\n", bytes_processed, strerror(errno));
       return;
+    } else {
+      log_info("Wrote %zd bytes\n", bytes_processed);
     }
 
     device->sequence_counter++;
