@@ -58,5 +58,6 @@ void stream_act(struct ha_device *device) {
     }
 
     device->sequence_counter++;
+    usleep(20000);
   }
 }
