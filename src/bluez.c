@@ -11,20 +11,21 @@
 static void setopts(int s) {
   struct l2cap_options opts = {0};
   int err;
-  unsigned int size = sizeof(opts);
-  err = getsockopt(s, SOL_L2CAP, L2CAP_OPTIONS, &opts, &size);
+  unsigned int size = sizeof(opts.imtu);
 
-  if (!err) {
-    opts.omtu = opts.imtu = 202;
-    log_info("Setting sockopts\n");
-    err = setsockopt(s, SOL_L2CAP, L2CAP_OPTIONS, &opts, size);
-    if (!err)
-      log_info("Set sockopts\n");
-    else {
-      log_info("Unable to set sockopts. %s (%d)\n", strerror(errno), errno);
-    }
-  } else {
-    log_info("Unable to get sockopts\n");
+  opts.omtu = opts.imtu = 202;
+  log_info("Setting sockopts\n");
+  err = setsockopt(s, SOL_BLUETOOTH, BT_RCVMTU, &opts.imtu, size);
+  if (!err)
+    log_info("Set recv mtu\n");
+  else {
+    log_info("Unable to set recv mtu. %s (%d)\n", strerror(errno), errno);
+  }
+  err = setsockopt(s, SOL_BLUETOOTH, BT_SNDMTU, &opts.imtu, size);
+  if (!err)
+    log_info("Set send mtu\n");
+  else {
+    log_info("Unable to set send mtu. %s (%d)\n", strerror(errno), errno);
   }
 }
 
@@ -41,10 +42,18 @@ int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
 
   struct sockaddr_l2 addr = {0};
   addr.l2_family = AF_BLUETOOTH;
-  addr.l2_psm = htobs(psm);
   // See
   // https://elixir.bootlin.com/linux/latest/source/net/bluetooth/l2cap_sock.c#L238
   addr.l2_bdaddr_type = BDADDR_LE_PUBLIC;
+
+  status = bind(s, (struct sockaddr*)&addr, sizeof(addr));
+  if (status == 0) {
+    log_info("L2CAP socket bound\n");
+  } else {
+    log_info("L2CAP: Could not bind %s\n", strerror(errno));
+  }
+
+  addr.l2_psm = htobs(psm);
 
   char bd_addr[30];
   strncpy(bd_addr, bd_addr_raw, 30);
