@@ -25,7 +25,6 @@ bool stream_init(char *bd_addr_raw, struct ha_device *device) {
   device->sequence_counter = 0;
   device->socket = l2cap_connect(bd_addr_raw, device->le_psm);
   device->source = open("/tmp/sample.g722", O_RDONLY);
-  device->firstrun = 1;
 
   // 1 byte for seq_counter and 2 for sdulen in the first sdu
   device->sdulen = 161;
@@ -47,17 +46,9 @@ void stream_act(struct ha_device *device) {
   ssize_t bytes_processed = 0;
 
   for (uint8_t i = 0; i < 2000; i++) {
-    if (device->firstrun) {
-      memcpy(device->buffer, &device->sdulen, 2);
-      memcpy(device->buffer + 2, &device->sequence_counter, 1);
-      memcpy(device->buffer + 3, device->sample, sizeof(device->sample));
-      device->firstrun = 1;
-      bytes_processed = send(device->socket, device->buffer, device->sdulen + 2, 0);
-    } else {
-      memcpy(device->buffer, &device->sequence_counter, 1);
-      memcpy(device->buffer + 1, device->sample, sizeof(device->sample));
-      bytes_processed = send(device->socket, device->buffer, device->sdulen, 0);
-    }
+    memcpy(device->buffer, &device->sequence_counter, 1);
+    memcpy(device->buffer + 1, device->sample, sizeof(device->sample));
+    bytes_processed = send(device->socket, device->buffer, device->sdulen, 0);
 
     if (bytes_processed < 0) {
       log_info("Write failed: %zd (%s)\n", bytes_processed, strerror(errno));
