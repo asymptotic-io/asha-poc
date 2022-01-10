@@ -49,12 +49,12 @@ void stream_act(struct ha_device *device) {
     if (device->firstrun) {
       memcpy(device->buffer, &device->sdulen, 2);
       memcpy(device->buffer + 2, &device->sequence_counter, 1);
-      memcpy(&device->buffer + 3, device->sample, sizeof(device->sample));
+      memcpy(device->buffer + 3, device->sample, sizeof(device->sample));
       device->firstrun = 1;
       bytes_processed = write(device->socket, device->buffer, device->sdulen + 2);
     } else {
       memcpy(device->buffer, &device->sequence_counter, 1);
-      memcpy(&device->buffer + 1, device->sample, sizeof(device->sample));
+      memcpy(device->buffer + 1, device->sample, sizeof(device->sample));
       bytes_processed = write(device->socket, device->buffer, device->sdulen);
     }
 
