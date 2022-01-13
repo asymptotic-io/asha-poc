@@ -10,6 +10,7 @@
 #include <strings.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 void handle_stream_event(struct loop_data *loop_data) {
@@ -44,17 +45,26 @@ bool stream_init(char *bd_addr_raw, struct ha_device *device) {
 
 void stream_act(struct ha_device *device) {
   ssize_t bytes_processed = 0;
+  struct timespec t;
+  int res = 0;
 
-  for (uint8_t i = 0; i < 2000; i++) {
+  for (int i = 0; i < 5000; i++) {
     memcpy(device->buffer, &device->sequence_counter, 1);
     memcpy(device->buffer + 1, device->sample, sizeof(device->sample));
     bytes_processed = send(device->socket, device->buffer, device->sdulen, 0);
+    res = clock_gettime(CLOCK_MONOTONIC, &t);
+    long long nanos = t.tv_nsec + (t.tv_sec * 1000000000);
+
+    if (res < 0) {
+      log_info("Could not gettime: %d (%s)\n", res, strerror(errno));
+    }
 
     if (bytes_processed < 0) {
-      log_info("Write failed: %zd (%s)\n", bytes_processed, strerror(errno));
+      log_info("%6d | %lld | Write failed: %zd (%s)\n", i, nanos,
+               bytes_processed, strerror(errno));
       return;
     } else {
-      log_info("Wrote %zd bytes\n", bytes_processed);
+      log_info("%6d | %lld | Wrote %zd bytes\n", i, nanos, bytes_processed);
     }
 
     device->sequence_counter++;
