@@ -1,0 +1,1498 @@
+
+==============================================
+
+===== Initializing ble_android_asha LEFT =====
+
+==============================================
+
+ sending GAPM_LEPSM_REG_CMD...
+ GAPM_LEPSM_REG: LEPSM registered successfully
+GAPC_CONNECTION_REQ_IND: con_interval=36, con_latency = 0, sup_to = 42, clk_accuracy = 1
+  ADDR: 2 66 171 65 120 144 
+  ADDR_TYPE: 0  connectionCfm->ltk_present = 1 
+
+GAPC_ENCRYPT_REQ_IND: bond information FOUND
+    GAPC_isBonded=1 GAPC_EDIV=0  GAPC_rand= 0 0 0 0   
+    p_EDIV=0  p_rand= 0 0 0 0   
+GAPC_ENCRYPT_IND: Link encryption is ON
+GAPC_GET_DEV_INFO_REQ_IND: req = 0
+GAPC_GET_DEV_INFO_REQ_IND: req = 1
+ASHA_LE_PSM_Callback: conidx=0, length=2, le_psm=0x 0A8
+ASHA_ReadOnlyProperties_Callback: conidx=0 length=17
+ ASHA_MsgHandler: L2CC_LECB_CONNECT_REQ_IND le_psm=0xA8
+ ASHA_MsgHandler: L2CC_LECB_CONNECT_IND: peer_cid=64
+ASHA_AudioControlPoint_Callback: opCode=1 codec=1 audioType=0 volume=0, otherState=0
+
+APP_ASHA_CallbackHandler - ASHA_AUDIO_START: codec=1 audiotype=0 volume=0
+
+ APP_Audio_Transfer: buf[4ýü], seq=0
+
+ APP_Audio_Transfer: buf[4ýü], seq=1
+
+ APP_Audio_Transfer: buf[4ýü], seq=2
+
+ APP_Audio_Transfer: buf[4ýü], seq=3
+
+ APP_Audio_Transfer: buf[4ýü], seq=4
+
+ APP_Audio_Transfer: buf[4ýü], seq=5
+
+ APP_Audio_Transfer: buf[4ýü], seq=6
+
+ APP_Audio_Transfer: buf[4ýü], seq=7
+Established - size: 16, first: 0
+
+ APP_Audio_Transfer: buf[4ýü], seq=8
+
+ APP_Audio_Transfer: buf[4ýü], seq=9
+
+ APP_Audio_Transfer: buf[4ýü], seq=10
+
+ APP_Audio_Transfer: buf[4ýü], seq=11
+
+ APP_Audio_Transfer: buf[4ýü], seq=12
+
+ APP_Audio_Transfer: buf[4ýü], seq=13
+
+ APP_Audio_Transfer: buf[4ýü], seq=14
+
+ APP_Audio_Transfer: buf[4ýü], seq=15
+
+ APP_Audio_Transfer: buf[4ýü], seq=16
+
+ APP_Audio_Transfer: buf[4ýü], seq=17
+
+ APP_Audio_Transfer: buf[4ýü], seq=18
+
+ APP_Audio_Transfer: buf[4ýü], seq=19
+
+ APP_Audio_Transfer: buf[4ýü], seq=20
+
+ APP_Audio_Transfer: buf[4ýü], seq=21
+
+ APP_Audio_Transfer: buf[4ýü], seq=22
+
+ APP_Audio_Transfer: buf[4ýü], seq=23
+
+ APP_Audio_Transfer: buf[4ýü], seq=24
+
+ APP_Audio_Transfer: buf[4ýü], seq=25
+
+ APP_Audio_Transfer: buf[4ýü], seq=26
+
+ APP_Audio_Transfer: buf[4ýü], seq=27
+
+ APP_Audio_Transfer: buf[4ýü], seq=28
+
+ APP_Audio_Transfer: buf[4ýü], seq=29
+
+ APP_Audio_Transfer: buf[4ýü], seq=30
+
+ APP_Audio_Transfer: buf[4ýü], seq=31
+
+ APP_Audio_Transfer: buf[4ýü], seq=32
+
+ APP_Audio_Transfer: buf[4ýü], seq=33
+
+ APP_Audio_Transfer: buf[4ýü], seq=34
+
+ APP_Audio_Transfer: buf[4ýü], seq=35
+
+ APP_Audio_Transfer: buf[4ýü], seq=36
+
+ APP_Audio_Transfer: buf[4ýü], seq=37
+
+ APP_Audio_Transfer: buf[4ýü], seq=38
+
+ APP_Audio_Transfer: buf[4ýü], seq=39
+
+ APP_Audio_Transfer: buf[4ýü], seq=40
+
+ APP_Audio_Transfer: buf[4ýü], seq=41
+
+ APP_Audio_Transfer: buf[4ýü], seq=42
+
+ APP_Audio_Transfer: buf[4ýü], seq=43
+
+ APP_Audio_Transfer: buf[4ýü], seq=44
+
+ APP_Audio_Transfer: buf[4ýü], seq=45
+
+ APP_Audio_Transfer: buf[4ýü], seq=46
+
+ APP_Audio_Transfer: buf[4ýü], seq=47
+
+ APP_Audio_Transfer: buf[4ýü], seq=48
+
+ APP_Audio_Transfer: buf[4ýü], seq=49
+
+ APP_Audio_Transfer: buf[4ýü], seq=50
+
+ APP_Audio_Transfer: buf[4ýü], seq=51
+
+ APP_Audio_Transfer: buf[4ýü], seq=52
+
+ APP_Audio_Transfer: buf[4ýü], seq=53
+
+ APP_Audio_Transfer: buf[4ýü], seq=54
+
+ APP_Audio_Transfer: buf[4ýü], seq=55
+
+ APP_Audio_Transfer: buf[4ýü], seq=56
+
+ APP_Audio_Transfer: buf[4ýü], seq=57
+
+ APP_Audio_Transfer: buf[4ýü], seq=58
+
+ APP_Audio_Transfer: buf[4ýü], seq=59
+
+ APP_Audio_Transfer: buf[4ýü], seq=60
+
+ APP_Audio_Transfer: buf[4ýü], seq=61
+
+ APP_Audio_Transfer: buf[4ýü], seq=62
+
+ APP_Audio_Transfer: buf[4ýü], seq=63
+
+ APP_Audio_Transfer: buf[4ýü], seq=64
+
+ APP_Audio_Transfer: buf[4ýü], seq=65
+
+ APP_Audio_Transfer: buf[4ýü], seq=66
+
+ APP_Audio_Transfer: buf[4ýü], seq=67
+
+ APP_Audio_Transfer: buf[4ýü], seq=68
+
+ APP_Audio_Transfer: buf[4ýü], seq=69
+
+ APP_Audio_Transfer: buf[4ýü], seq=70
+
+ APP_Audio_Transfer: buf[4ýü], seq=71
+
+ APP_Audio_Transfer: buf[4ýü], seq=72
+
+ APP_Audio_Transfer: buf[4ýü], seq=73
+
+ APP_Audio_Transfer: buf[4ýü], seq=74
+
+ APP_Audio_Transfer: buf[4ýü], seq=75
+
+ APP_Audio_Transfer: buf[4ýü], seq=76
+
+ APP_Audio_Transfer: buf[4ýü], seq=77
+
+ APP_Audio_Transfer: buf[4ýü], seq=78
+
+ APP_Audio_Transfer: buf[4ýü], seq=79
+
+ APP_Audio_Transfer: buf[4ýü], seq=80
+
+ APP_Audio_Transfer: buf[4ýü], seq=81
+
+ APP_Audio_Transfer: buf[4ýü], seq=82
+
+ APP_Audio_Transfer: buf[4ýü], seq=83
+
+ APP_Audio_Transfer: buf[4ýü], seq=84
+
+ APP_Audio_Transfer: buf[4ýü], seq=85
+
+ APP_Audio_Transfer: buf[4ýü], seq=86
+
+ APP_Audio_Transfer: buf[4ýü], seq=87
+
+ APP_Audio_Transfer: buf[4ýü], seq=88
+
+ APP_Audio_Transfer: buf[4ýü], seq=89
+
+ APP_Audio_Transfer: buf[4ýü], seq=90
+
+ APP_Audio_Transfer: buf[4ýü], seq=91
+
+ APP_Audio_Transfer: buf[4ýü], seq=92
+
+ APP_Audio_Transfer: buf[4ýü], seq=93
+
+ APP_Audio_Transfer: buf[4ýü], seq=94
+
+ APP_Audio_Transfer: buf[4ýü], seq=95
+
+ APP_Audio_Transfer: buf[4ýü], seq=96
+
+ APP_Audio_Transfer: buf[4ýü], seq=97
+
+ APP_Audio_Transfer: buf[4ýü], seq=98
+
+ APP_Audio_Transfer: buf[4ýü], seq=99
+
+ APP_Audio_Transfer: buf[4ýü], seq=100
+
+ APP_Audio_Transfer: buf[4ýü], seq=101
+
+ APP_Audio_Transfer: buf[4ýü], seq=102
+
+ APP_Audio_Transfer: buf[4ýü], seq=103
+
+ APP_Audio_Transfer: buf[4ýü], seq=104
+
+ APP_Audio_Transfer: buf[4ýü], seq=105
+
+ APP_Audio_Transfer: buf[4ýü], seq=106
+
+ APP_Audio_Transfer: buf[4ýü], seq=107
+
+ APP_Audio_Transfer: buf[4ýü], seq=108
+
+ APP_Audio_Transfer: buf[4ýü], seq=109
+
+ APP_Audio_Transfer: buf[4ýü], seq=110
+
+ APP_Audio_Transfer: buf[4ýü], seq=111
+
+ APP_Audio_Transfer: buf[4ýü], seq=112
+
+ APP_Audio_Transfer: buf[4ýü], seq=113
+
+ APP_Audio_Transfer: buf[4ýü], seq=114
+
+ APP_Audio_Transfer: buf[4ýü], seq=115
+
+==============================================
+
+===== Initializing ble_android_asha LEFT =====
+
+==============================================
+
+ sending GAPM_LEPSM_REG_CMD...
+ GAPM_LEPSM_REG: LEPSM registered successfully
+GAPC_CONNECTION_REQ_IND: con_interval=36, con_latency = 0, sup_to = 42, clk_accuracy = 1
+  ADDR: 2 66 171 65 120 144 
+  ADDR_TYPE: 0  connectionCfm->ltk_present = 1 
+
+GAPC_ENCRYPT_REQ_IND: bond information FOUND
+    GAPC_isBonded=1 GAPC_EDIV=0  GAPC_rand= 0 0 0 0   
+    p_EDIV=0  p_rand= 0 0 0 0   
+GAPC_ENCRYPT_IND: Link encryption is ON
+GAPC_GET_DEV_INFO_REQ_IND: req = 0
+GAPC_GET_DEV_INFO_REQ_IND: req = 1
+ASHA_LE_PSM_Callback: conidx=0, length=2, le_psm=0x 0A8
+ASHA_ReadOnlyProperties_Callback: conidx=0 length=17
+ ASHA_MsgHandler: L2CC_LECB_CONNECT_REQ_IND le_psm=0xA8
+ ASHA_MsgHandler: L2CC_LECB_CONNECT_IND: peer_cid=64
+ASHA_AudioControlPoint_Callback: opCode=1 codec=1 audioType=0 volume=0, otherState=0
+
+APP_ASHA_CallbackHandler - ASHA_AUDIO_START: codec=1 audiotype=0 volume=0
+
+ APP_Audio_Transfer: buf[4ýü], seq=0
+
+ FIRSTFRAME 
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=1
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=2
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=3
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=4
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=5
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=6
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=7
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ AUDIOSTART 
+Established - size: 16, first: 0
+
+ APP_Audio_Transfer: buf[4ýü], seq=8
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=9
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=10
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=11
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=12
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=13
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=14
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=15
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=16
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=17
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=18
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=19
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=20
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=21
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=22
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=23
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=24
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=25
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=26
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=27
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=28
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=29
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=30
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=31
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=32
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=33
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=34
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=35
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=36
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=37
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=38
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=39
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=40
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=41
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=42
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=43
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=44
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=45
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=46
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=47
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=48
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=49
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=50
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=51
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=52
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=53
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=54
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=55
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=56
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=57
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=58
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=59
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=60
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=61
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=62
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=63
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=64
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=65
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=66
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=67
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=68
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=69
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=70
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=71
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=72
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=73
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=74
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=75
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=76
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=77
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=78
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=79
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=80
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=81
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=82
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=83
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=84
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=85
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=86
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=87
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=88
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=89
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=90
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=91
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=92
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=93
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=94
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=95
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=96
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=97
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=98
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=99
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=100
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=101
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=102
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=103
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=104
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=105
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=106
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=107
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=108
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=109
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=110
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=111
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=112
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=113
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=114
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=115
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=116
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=117
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=118
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=119
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=120
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=121
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=122
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=123
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=124
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=125
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=126
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=127
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=128
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=129
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=130
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=131
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=132
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=133
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=134
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=135
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=136
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=137
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=138
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=139
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=140
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=141
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=142
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=143
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=144
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=145
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=146
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=147
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=148
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=149
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
+
+ APP_Audio_Transfer: buf[4ýü], seq=150
+
+ CORRECT 
+
+ GOODPACKET 
+
+ GOODPACKET 
