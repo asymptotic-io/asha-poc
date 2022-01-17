@@ -43,31 +43,90 @@ bool stream_init(char *bd_addr_raw, struct ha_device *device) {
   return true;
 }
 
-void stream_act(struct ha_device *device) {
+static int action_counter = 0;
+
+bool act_once(struct ha_device *device) {
   ssize_t bytes_processed = 0;
   struct timespec t;
   int res = 0;
 
+  memcpy(device->buffer, &device->sequence_counter, 1);
+  memcpy(device->buffer + 1, device->sample, sizeof(device->sample));
+  bytes_processed = send(device->socket, device->buffer, device->sdulen, 0);
+  res = clock_gettime(CLOCK_MONOTONIC, &t);
+  long long nanos = t.tv_nsec + (t.tv_sec * 1000000000);
+
+  if (res < 0) {
+    log_info("Could not gettime: %d (%s)\n", res, strerror(errno));
+  }
+
+  if (bytes_processed < 0) {
+    log_info("%6d | %lld | Write failed: %zd (%s)\n", action_counter, nanos,
+             bytes_processed, strerror(errno));
+    return false;
+  } else {
+    log_info("%6d | %lld | Wrote %zd bytes\n", action_counter, nanos,
+             bytes_processed);
+  }
+
+  device->sequence_counter++;
+  action_counter++;
+
+  return true;
+}
+
+static long int micros(struct timespec t) {
+  return t.tv_sec * 1000000 + (t.tv_nsec / 1000);
+}
+
+#define NANOS_20MS (20 * 1000 * 1000)
+#define NANOS_1S (1000 * 1000 * 1000)
+
+static struct timespec next_tick(struct timespec t) {
+  struct timespec ret = t;
+
+  if (t.tv_nsec + NANOS_20MS >= NANOS_1S) {
+    ret.tv_sec = t.tv_sec + 1;
+    ret.tv_nsec = t.tv_nsec - NANOS_1S + NANOS_20MS;
+  } else {
+    ret.tv_nsec = t.tv_nsec + NANOS_20MS;
+  }
+
+  return ret;
+}
+
+void stream_act(struct ha_device *device) {
+  int res = 0;
+  long int delay = 0;
+  struct timespec this_run;
+  struct timespec next_run;
+
+  res = clock_gettime(CLOCK_MONOTONIC, &this_run);
+  if (res < 0) {
+    log_info("Could not gettime: %d (%s)\n", res, strerror(errno));
+  }
+
+  next_run = this_run;
+  next_run.tv_nsec += NANOS_20MS;
+
   for (int i = 0; i < 5000; i++) {
-    memcpy(device->buffer, &device->sequence_counter, 1);
-    memcpy(device->buffer + 1, device->sample, sizeof(device->sample));
-    bytes_processed = send(device->socket, device->buffer, device->sdulen, 0);
-    res = clock_gettime(CLOCK_MONOTONIC, &t);
-    long long nanos = t.tv_nsec + (t.tv_sec * 1000000000);
+    if (!act_once(device))
+      return;
+
+    res = clock_gettime(CLOCK_MONOTONIC, &this_run);
 
     if (res < 0) {
       log_info("Could not gettime: %d (%s)\n", res, strerror(errno));
     }
 
-    if (bytes_processed < 0) {
-      log_info("%6d | %lld | Write failed: %zd (%s)\n", i, nanos,
-               bytes_processed, strerror(errno));
-      return;
-    } else {
-      log_info("%6d | %lld | Wrote %zd bytes\n", i, nanos, bytes_processed);
-    }
+    delay = micros(next_run) - micros(this_run);
+    log_info("sleep(%ld μs) | ", delay);
+    // this_run is now here
+    usleep(delay);
 
-    device->sequence_counter++;
-    usleep(20000);
+    // Make this_run the next iteration's this_run time
+    this_run = next_run;
+    // Make next_run the next iteration's next_run time
+    next_run = next_tick(this_run);
   }
 }
