@@ -36,9 +36,10 @@ int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
   if (s == -1) {
     log_info("L2CAP: Could not create a socket %s:%u. %s (%d)\n", bd_addr_raw,
              psm, strerror(errno), errno);
-  } else {
-    log_info("L2CAP: Created socket %s:%u\n", bd_addr_raw, psm);
+    return -1;
   }
+
+  log_info("L2CAP: Created socket %s:%u\n", bd_addr_raw, psm);
 
   struct sockaddr_l2 addr = {0};
   addr.l2_family = AF_BLUETOOTH;
@@ -46,12 +47,13 @@ int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
   // https://elixir.bootlin.com/linux/latest/source/net/bluetooth/l2cap_sock.c#L238
   addr.l2_bdaddr_type = BDADDR_LE_PUBLIC;
 
-  status = bind(s, (struct sockaddr*)&addr, sizeof(addr));
-  if (status == 0) {
-    log_info("L2CAP socket bound\n");
-  } else {
+  status = bind(s, (struct sockaddr *)&addr, sizeof(addr));
+  if (status < 0) {
     log_info("L2CAP: Could not bind %s\n", strerror(errno));
+    return -1;
   }
+
+  log_info("L2CAP socket bound\n");
 
   addr.l2_psm = htobs(psm);
 
@@ -74,7 +76,8 @@ int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
   } else {
     log_info("L2CAP: Could not connect to %s:%u. Error %d. %d (%s)\n", bd_addr,
              psm, status, errno, strerror(errno));
+    return -1;
   }
 
-  return s;
+  return 0;
 }

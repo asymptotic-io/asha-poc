@@ -13,37 +13,49 @@
 #include <time.h>
 #include <unistd.h>
 
-void handle_stream_event(struct loop_data *loop_data) {
-  void *buf = malloc(100);
-  bzero(buf, 100);
+/*
+ * This file handles the audio data being streamed across to the
+ * hearing aid
+ *
+ */
 
+// 1 byte for seq_counter and 160 for the buffer
+#define SDULEN 161
+
+void handle_stream_event(struct loop_data *loop_data) {
+  // This is currently doing nothing since we're doing blocking writes right now
   log_info("Received a stream event\n");
 }
 
-bool stream_init(char *bd_addr_raw, struct ha_device *device) {
-  device->sequence_counter = 0;
-  device->socket = l2cap_connect(bd_addr_raw, device->le_psm);
-  device->source = open("sounds/ikea.g722", O_RDONLY);
+int stream_init(char *bd_addr_raw, struct ha_device *device, char *sound_path) {
+  int ret = 0;
 
-  // 1 byte for seq_counter and 2 for sdulen in the first sdu
-  device->sdulen = 161;
-  device->buffer = malloc(device->sdulen + 2);
-  bzero(device->buffer, device->sdulen + 2);
+  device->sequence_counter = 0;
+  ret = l2cap_connect(bd_addr_raw, device->le_psm);
+
+  if (ret < 0) {
+    return ret;
+  }
+
+  device->socket = ret;
+  device->source = open(sound_path, O_RDONLY);
+  device->sdulen = SDULEN;
 
   log_info("socket: %d\n", device->socket);
 
-  loop_add(device->socket, handle_stream_event, NULL);
-  return true;
-}
+  memset(device->buffer, '\0', device->sdulen + 2);
 
-static int action_counter = 0;
+  loop_add(device->socket, handle_stream_event, NULL);
+
+  return 1;
+}
 
 bool act_once(struct ha_device *device) {
   ssize_t bytes_processed = 0;
   struct timespec t;
   int res = 0;
 
-  bytes_processed = read(device->source, device->sample, 160);
+  bytes_processed = read(device->source, device->buffer, 160);
 
   if (bytes_processed < 0) {
     log_info("File read failed: %zd (%s)\n", bytes_processed, strerror(errno));
@@ -51,7 +63,7 @@ bool act_once(struct ha_device *device) {
   }
 
   memcpy(device->buffer, &device->sequence_counter, 1);
-  memcpy(device->buffer + 1, device->sample, sizeof(device->sample));
+  memcpy(device->buffer + 1, device->buffer, sizeof(device->buffer));
   bytes_processed = send(device->socket, device->buffer, device->sdulen, 0);
   res = clock_gettime(CLOCK_MONOTONIC, &t);
   long long nanos = t.tv_nsec + (t.tv_sec * 1000000000);
@@ -61,16 +73,16 @@ bool act_once(struct ha_device *device) {
   }
 
   if (bytes_processed < 0) {
-    log_info("%6d | %lld | Write failed: %zd (%s)\n", action_counter, nanos,
+    log_info("%6d | %lld | Write failed: %zd (%s)\n", device->iteration, nanos,
              bytes_processed, strerror(errno));
     return false;
   } else {
-    log_info("%6d | %lld | Wrote %zd bytes\n", action_counter, nanos,
+    log_info("%6d | %lld | Wrote %zd bytes\n", device->iteration, nanos,
              bytes_processed);
   }
 
   device->sequence_counter++;
-  action_counter++;
+  device->iteration++;
 
   return true;
 }

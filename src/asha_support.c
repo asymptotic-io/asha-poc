@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #define EXECUTABLE_NAME "asha-support"
+#define SOUND_FILE "sounds/ikea.g722"
 
 static void print_help_message() {
   log_info("Usage: %s [BD_ADDR]\n", EXECUTABLE_NAME);
@@ -52,7 +53,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  stream_init(bd_addr, device);
+  stream_init(bd_addr, device, SOUND_FILE);
   dbus_audio_control_point_start(*devices);
   sleep(1);
   stream_act(device);
