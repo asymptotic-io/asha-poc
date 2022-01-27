@@ -53,15 +53,15 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  stream_init(bd_addr, device, SOUND_FILE);
+  stream_init(loop_fd, bd_addr, device, SOUND_FILE);
   dbus_audio_control_point_start(*devices);
   sleep(1);
-  stream_act(device);
+  stream_run(device);
   sleep(3);
 
   while (1) {
     sleep(1);
-    loop_iterate();
+    loop_iterate(loop_fd);
   }
 
   return 0;

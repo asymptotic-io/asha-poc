@@ -15,7 +15,7 @@ int loop_init() {
   return loop_fd;
 }
 
-void loop_iterate() {
+void loop_iterate(int loop_fd) {
   struct epoll_event events[MAX_EVENTS_PER_ITERATION];
   struct loop_data *loop_data = NULL;
 
@@ -33,7 +33,8 @@ void loop_iterate() {
   }
 }
 
-void loop_add(int fd, void (*handler)(struct loop_data *), void *payload) {
+void loop_add(int loop_fd, int fd, void (*handler)(struct loop_data *),
+              void *payload) {
   struct epoll_event evt = {0};
   struct loop_data *loop_data = malloc(sizeof(struct loop_data));
   loop_data->fd = fd;

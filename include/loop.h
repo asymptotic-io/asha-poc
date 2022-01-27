@@ -11,8 +11,9 @@ struct loop_data {
 struct event_data {};
 
 int loop_init();
-void loop_iterate();
-void loop_add(int fd, void (*handler)(struct loop_data *), void *payload);
+void loop_iterate(int loop_fd);
+void loop_add(int loop_fd, int fd, void (*handler)(struct loop_data *),
+              void *payload);
 
 #else
 #endif

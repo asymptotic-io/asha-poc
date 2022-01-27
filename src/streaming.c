@@ -19,18 +19,28 @@
  *
  */
 
+#define NUMBER_OF_ITERATIONS 5000
 // 1 byte for seq_counter and 160 for the buffer
-#define SDULEN 161
+#define BUFFER_LENGTH 160
+#define SDU_LENGTH (BUFFER_LENGTH + 1)
+
+#define SEQUENCE_COUNTER_LIMIT 255
+
+#define NANOS_20MS (20 * 1000 * 1000)
+#define NANOS_1S (1000 * 1000 * 1000)
+#define MICROS_1S (1000 * 1000)
+#define NANOS_1MICRO (1000)
 
 void handle_stream_event(struct loop_data *loop_data) {
   // This is currently doing nothing since we're doing blocking writes right now
   log_info("Received a stream event\n");
 }
 
-int stream_init(char *bd_addr_raw, struct ha_device *device, char *sound_path) {
+int stream_init(int loop_fd, char *bd_addr_raw, struct ha_device *device,
+                char *sound_path) {
   int ret = 0;
 
-  device->sequence_counter = 0;
+  device->iteration = 0;
   ret = l2cap_connect(bd_addr_raw, device->le_psm);
 
   if (ret < 0) {
@@ -39,32 +49,35 @@ int stream_init(char *bd_addr_raw, struct ha_device *device, char *sound_path) {
 
   device->socket = ret;
   device->source = open(sound_path, O_RDONLY);
-  device->sdulen = SDULEN;
+  device->sdulen = SDU_LENGTH;
 
   log_info("socket: %d\n", device->socket);
 
-  memset(device->buffer, '\0', device->sdulen + 2);
+  memset(device->buffer, '\0', SDU_LENGTH);
 
-  loop_add(device->socket, handle_stream_event, NULL);
+  loop_add(loop_fd, device->socket, handle_stream_event, NULL);
 
   return 1;
 }
 
-bool act_once(struct ha_device *device) {
+int act_once(struct ha_device *device) {
   ssize_t bytes_processed = 0;
   struct timespec t;
   int res = 0;
+  uint8_t sequence_counter = (device->iteration % SEQUENCE_COUNTER_LIMIT);
 
-  bytes_processed = read(device->source, device->buffer, 160);
+  bytes_processed = read(device->source, device->buffer, BUFFER_LENGTH);
 
   if (bytes_processed < 0) {
     log_info("File read failed: %zd (%s)\n", bytes_processed, strerror(errno));
-    return false;
+    return -1;
   }
 
-  memcpy(device->buffer, &device->sequence_counter, 1);
-  memcpy(device->buffer + 1, device->buffer, sizeof(device->buffer));
+  memcpy(device->buffer, &sequence_counter, 1);
+  memcpy(device->buffer + 1, device->buffer, BUFFER_LENGTH);
+
   bytes_processed = send(device->socket, device->buffer, device->sdulen, 0);
+
   res = clock_gettime(CLOCK_MONOTONIC, &t);
   long long nanos = t.tv_nsec + (t.tv_sec * 1000000000);
 
@@ -75,24 +88,20 @@ bool act_once(struct ha_device *device) {
   if (bytes_processed < 0) {
     log_info("%6d | %lld | Write failed: %zd (%s)\n", device->iteration, nanos,
              bytes_processed, strerror(errno));
-    return false;
+    return -1;
   } else {
     log_info("%6d | %lld | Wrote %zd bytes\n", device->iteration, nanos,
              bytes_processed);
   }
 
-  device->sequence_counter++;
   device->iteration++;
 
-  return true;
+  return 0;
 }
 
 static long int micros(struct timespec t) {
-  return t.tv_sec * 1000000 + (t.tv_nsec / 1000);
+  return t.tv_sec * MICROS_1S + (t.tv_nsec / NANOS_1MICRO);
 }
-
-#define NANOS_20MS (20 * 1000 * 1000)
-#define NANOS_1S (1000 * 1000 * 1000)
 
 static struct timespec next_tick(struct timespec t) {
   struct timespec ret = t;
@@ -107,7 +116,7 @@ static struct timespec next_tick(struct timespec t) {
   return ret;
 }
 
-void stream_act(struct ha_device *device) {
+void stream_run(struct ha_device *device) {
   int res = 0;
   long int delay = 0;
   struct timespec this_run;
@@ -121,9 +130,10 @@ void stream_act(struct ha_device *device) {
   next_run = this_run;
   next_run.tv_nsec += NANOS_20MS;
 
-  for (int i = 0; i < 5000; i++) {
-    if (!act_once(device))
+  for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+    if (act_once(device) < 0) {
       return;
+    }
 
     res = clock_gettime(CLOCK_MONOTONIC, &this_run);
 
