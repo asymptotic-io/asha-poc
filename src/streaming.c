@@ -53,6 +53,7 @@ int stream_init(int loop_fd, char *bd_addr_raw, struct ha_device *device,
 
   log_info("socket: %d\n", device->socket);
 
+  device->buffer = malloc(SDU_LENGTH);
   memset(device->buffer, '\0', SDU_LENGTH);
 
   loop_add(loop_fd, device->socket, handle_stream_event, NULL);

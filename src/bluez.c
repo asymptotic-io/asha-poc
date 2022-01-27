@@ -62,13 +62,6 @@ int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
 
   addr.l2_family = AF_BLUETOOTH;
   addr.l2_bdaddr_type = BDADDR_LE_PUBLIC;
-  addr.l2_psm = htobs(psm);
-
-  strsub(bd_addr, '_', ':', ADDR_LENGTH);
-
-  str2ba(bd_addr, &addr.l2_bdaddr);
-
-  set_mtu(s, MTU);
 
   // Currently need to bind before connect to workaround an issue where the
   // addr type is incorrectly set otherwise
@@ -82,6 +75,11 @@ int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
 
   log_info("L2CAP: socket bound\n");
 
+  addr.l2_psm = htobs(psm);
+  strsub(bd_addr, '_', ':', ADDR_LENGTH);
+  str2ba(bd_addr, &addr.l2_bdaddr);
+  set_mtu(s, MTU);
+
   status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
 
   if (status == 0) {
@@ -92,5 +90,5 @@ int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
     return -1;
   }
 
-  return 0;
+  return s;
 }
