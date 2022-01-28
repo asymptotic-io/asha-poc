@@ -12,6 +12,19 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
+#define REPLY_TIMEOUT 5000
+
+#define ROOT_PATH "/"
+#define BLUEZ_SERVICE_NAME "org.bluez"
+#define OBJECTMANAGER_INTERFACE "org.freedesktop.DBus.ObjectManager"
+#define GET_MANAGED_OBJECTS_METHOD "GetManagedObjects"
+
+#define READ_ONLY_PROPERTIES_UUID "6333651e-c481-4a3e-9169-7c902aad37bb"
+#define AUDIO_CONTROL_POINT_UUID "f0d4de7e-4a88-476c-9d9f-1937b0996cc0"
+#define AUDIO_STATUS_UUID "38663f1a-e711-4cac-b641-326b56404837"
+#define VOLUME_UUID "00e4ca9e-ab14-41e4-8823-f9e70c7e91df"
+#define LE_PSM_OUT_UUID "2d410339-82b6-42aa-b34e-e2e01df8cc1a"
+
 static DBusError err;
 static DBusConnection *conn;
 
@@ -48,6 +61,9 @@ dbus_bool_t add_watch(DBusWatch *watch, void *data) {
   event.events = EPOLLIN;
   event.data.ptr = &loop_data;
 
+  // The pipewire dbus implementation mentions that dbus tends to add the same
+  // fd multiple times, we may not want this for our epoll implementation
+  // either
   epoll_ctl(*loop_fd, EPOLL_CTL_ADD, dbus_watch_get_unix_fd(watch), &event);
   dbus_watch_set_data(watch, (void *)new_wd, free_watch);
 
@@ -198,7 +214,8 @@ static void dbus_read_ro_properties(char *path,
   dbus_message_iter_init_append(m, &iter);
   create_read_characteristic_container(&iter);
 
-  reply = dbus_connection_send_with_reply_and_block(conn, m, 5000, error);
+  reply =
+      dbus_connection_send_with_reply_and_block(conn, m, REPLY_TIMEOUT, error);
   if (dbus_error_is_set(error)) {
     log_info("Error: failed to read ReadOnlyProperties\n");
     return;
@@ -241,7 +258,8 @@ void dbus_read_psm(char *path, uint16_t *spsm, DBusError *error) {
   dbus_message_iter_init_append(m, &iter);
   create_read_characteristic_container(&iter);
 
-  reply = dbus_connection_send_with_reply_and_block(conn, m, 5000, &err);
+  reply =
+      dbus_connection_send_with_reply_and_block(conn, m, REPLY_TIMEOUT, &err);
   if (dbus_error_is_set(&err)) {
     log_info("Error: failed to read PSM\n");
     return;
@@ -267,15 +285,6 @@ void dbus_read_psm(char *path, uint16_t *spsm, DBusError *error) {
   log_info("Sent\n");
   memcpy(spsm, spsm_ref, sizeof(uint16_t));
 }
-
-#define BLUEZ_SERVICE_NAME "org.bluez"
-#define OBJECTMANAGER_INTERFACE "org.freedesktop.DBus.ObjectManager"
-
-#define READ_ONLY_PROPERTIES_UUID "6333651e-c481-4a3e-9169-7c902aad37bb"
-#define AUDIO_CONTROL_POINT_UUID "f0d4de7e-4a88-476c-9d9f-1937b0996cc0"
-#define AUDIO_STATUS_UUID "38663f1a-e711-4cac-b641-326b56404837"
-#define VOLUME_UUID "00e4ca9e-ab14-41e4-8823-f9e70c7e91df"
-#define LE_PSM_OUT_UUID "2d410339-82b6-42aa-b34e-e2e01df8cc1a"
 
 struct ha_device *is_ha_service(DBusMessageIter *iter) {
   char *interface, *key, *value;
@@ -343,7 +352,7 @@ struct ha_device *is_ha_service(DBusMessageIter *iter) {
   }
 }
 
-DBusMessage *get_objects();
+static DBusMessage *get_objects();
 
 static void populate_characteristic(DBusMessageIter *iter,
                                     char *characteristic_path,
@@ -504,13 +513,13 @@ int add_if_ha_service(DBusMessageIter *iter, struct ha_device **devices) {
   return 0;
 }
 
-DBusMessage *get_objects() {
-  DBusMessage *m = dbus_message_new_method_call(
-      BLUEZ_SERVICE_NAME, "/", OBJECTMANAGER_INTERFACE, "GetManagedObjects");
+static DBusMessage *get_objects() {
+  DBusMessage *m = dbus_message_new_method_call(BLUEZ_SERVICE_NAME, ROOT_PATH,
+                                                OBJECTMANAGER_INTERFACE,
+                                                GET_MANAGED_OBJECTS_METHOD);
 
-  DBusMessage *reply;
-
-  reply = dbus_connection_send_with_reply_and_block(conn, m, 5000, &err);
+  DBusMessage *reply =
+      dbus_connection_send_with_reply_and_block(conn, m, REPLY_TIMEOUT, &err);
 
   if (dbus_error_is_set(&err)) {
     log_info("Error: failed to list objects with ObjectManager\n");
@@ -547,7 +556,8 @@ void dbus_audio_control_point_start(struct ha_device *device) {
   dbus_message_iter_init_append(m, &iter);
   create_write_characteristic_container(&iter, data, 5);
 
-  reply = dbus_connection_send_with_reply_and_block(conn, m, 5000, &err);
+  reply =
+      dbus_connection_send_with_reply_and_block(conn, m, REPLY_TIMEOUT, &err);
   if (dbus_error_is_set(&err)) {
     log_info("Error: failed to write AudioControlPoint: %s\n",
              dbus_message_get_error_name(reply));
@@ -568,14 +578,19 @@ struct ha_device **find_devices() {
    * GetManagedObjects
    * Read dict
    * Per entry:
-   *   1. Scan dict for org.bluez.GattService1 or org.bluez.GattCharacteristic1
+   *   1. Scan dict for org.bluez.GattService1 or
+   * org.bluez.GattCharacteristic1
    *   2. When a Service (0x0000fdf0) is found, accumulate the key, i.e.
    * /org/bluez/hciX/dev_pp_qq_rr_ss/serviceNN under the device 'side'
    *   3. When a Characteristic of a service we have accumulated is found,
    * record the path under the device
    */
-  DBusMessageIter iter, dict_entries, dict_entry;
+  DBusMessageIter iter;
+  DBusMessageIter dict_entries;
+  DBusMessageIter dict_entry;
+
   DBusMessage *reply = get_objects();
+
   struct ha_device **devices = calloc(sizeof(struct ha_device *), 20);
   bzero(devices, sizeof(struct ha_device *) * 20);
 
