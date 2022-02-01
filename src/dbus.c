@@ -12,11 +12,16 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
+#define MAX_DEVICES 20
+
 #define REPLY_TIMEOUT 5000
 
 #define ROOT_PATH "/"
+#define ASHA_UUID_PREFIX "0000fdf0-"
 #define BLUEZ_SERVICE_NAME "org.bluez"
 #define OBJECTMANAGER_INTERFACE "org.freedesktop.DBus.ObjectManager"
+#define GATT_CHARACTERISTIC_INTERFACE "org.bluez.GattCharacteristic1"
+#define GATT_SERVICE_INTERFACE "org.bluez.GattService1"
 #define GET_MANAGED_OBJECTS_METHOD "GetManagedObjects"
 
 #define READ_ONLY_PROPERTIES_UUID "6333651e-c481-4a3e-9169-7c902aad37bb"
@@ -29,7 +34,7 @@ static DBusError err;
 static DBusConnection *conn;
 
 struct watch_data {
-  bool active;
+  struct loop_data loop_data;
 };
 
 void free_watch(void *mem) {
@@ -44,62 +49,50 @@ void handle_dbus_event(struct loop_data *loop_data) {
 dbus_bool_t add_watch(DBusWatch *watch, void *data) {
   int *loop_fd = data;
   struct epoll_event event = {0};
-  struct loop_data *loop_data = malloc(sizeof(struct loop_data));
-  struct watch_data *wd = dbus_watch_get_data(watch);
+  struct watch_data *wd = malloc(sizeof(struct watch_data));
 
-  if ((wd != NULL) && wd->active) {
-    log_info("dbus: Avoided adding a watch that was already active");
-    return TRUE;
-  }
-  struct watch_data *new_wd = malloc(sizeof(struct watch_data));
-  new_wd->active = TRUE;
-
-  loop_data->fd = 0;
-  loop_data->handler = handle_dbus_event;
-  loop_data->payload = NULL;
+  // NOTE: The pipewire dbus implementation mentions that dbus tends to add
+  // the same fd multiple times, we may not want this for our epoll
+  // implementation either. They employ dup to get around it.
+  wd->loop_data.fd = dbus_watch_get_unix_fd(watch);
+  wd->loop_data.handler = handle_dbus_event;
+  wd->loop_data.payload = NULL;
 
   event.events = EPOLLIN;
-  event.data.ptr = &loop_data;
+  event.data.ptr = &wd->loop_data;
 
-  // The pipewire dbus implementation mentions that dbus tends to add the same
-  // fd multiple times, we may not want this for our epoll implementation
-  // either
-  epoll_ctl(*loop_fd, EPOLL_CTL_ADD, dbus_watch_get_unix_fd(watch), &event);
-  dbus_watch_set_data(watch, (void *)new_wd, free_watch);
+  epoll_ctl(*loop_fd, EPOLL_CTL_ADD, wd->loop_data.fd, &event);
+  dbus_watch_set_data(watch, (void *)wd, free_watch);
 
   return TRUE;
 }
 
 void remove_watch(DBusWatch *watch, void *data) {
   int *loop_fd = data;
-  struct epoll_event event;
 
-  struct watch_data *wd = dbus_watch_get_data(watch);
-
-  if ((wd == NULL) || !wd->active) {
-    log_info("dbus: Avoided removing a watch that was not active");
-    return;
-  }
-
-  event.events = EPOLLIN;
-  event.data.fd = 0; // Unsure as to whether this needs to even be anything
-  epoll_ctl(*loop_fd, EPOLL_CTL_DEL, dbus_watch_get_unix_fd(watch), &event);
+  epoll_ctl(*loop_fd, EPOLL_CTL_DEL, dbus_watch_get_unix_fd(watch), NULL);
 }
 
 void toggle_watch(DBusWatch *watch, void *data) {
+  // This is called to enable or disable the watch
+
   int *loop_fd = data;
   struct epoll_event event = {0};
 
   if (dbus_watch_get_enabled(watch)) {
     struct watch_data *wd = (struct watch_data *)dbus_watch_get_data(watch);
-    wd->active = TRUE;
+
+    // Assuming that watch data is already populated by add_watch
 
     event.events = EPOLLIN;
-    event.data.fd = 0; // Unsure as to whether this needs to even be anything
+    event.data.ptr = &wd->loop_data;
 
-    epoll_ctl(*loop_fd, EPOLL_CTL_DEL, dbus_watch_get_unix_fd(watch), &event);
+    epoll_ctl(*loop_fd, EPOLL_CTL_ADD, wd->loop_data.fd, &event);
     log_info("dbus: Watch toggled on");
   } else {
+    struct watch_data *wd = (struct watch_data *)dbus_watch_get_data(watch);
+
+    epoll_ctl(*loop_fd, EPOLL_CTL_DEL, wd->loop_data.fd, NULL);
     log_info("dbus: Watch toggled off");
   }
 }
@@ -132,7 +125,7 @@ int dbus_connect_device(const char *bd_addr) {
   snprintf(path, 100, "/org/bluez/hci0/dev_%s", bd_addr);
   log_debug("Connecting to path: %s\n", path);
   DBusMessage *message = dbus_message_new_method_call(
-      "org.bluez", path, "org.bluez.Device1", "Connect");
+      BLUEZ_SERVICE_NAME, path, "org.bluez.Device1", "Connect");
   dbus_connection_send(conn, message, NULL);
 
   return 0;
@@ -199,12 +192,10 @@ void debug_properties(struct ha_properties *ro_properties) {
 static void dbus_read_ro_properties(char *path,
                                     struct ha_properties *properties,
                                     DBusError *error) {
-  char *bus_name = "org.bluez";
-  char *interface = "org.bluez.GattCharacteristic1";
-
   struct ha_properties *properties_ref;
 
-  DBusMessage *m = dbus_message_new_method_call(bus_name, path, interface,
+  DBusMessage *m = dbus_message_new_method_call(BLUEZ_SERVICE_NAME, path,
+                                                GATT_CHARACTERISTIC_INTERFACE,
                                                 "ReadValue"),
               *reply;
   DBusMessageIter iter;
@@ -244,11 +235,10 @@ static void dbus_read_ro_properties(char *path,
 }
 
 void dbus_read_psm(char *path, uint16_t *spsm, DBusError *error) {
-  char *bus_name = "org.bluez";
-  char *interface = "org.bluez.GattCharacteristic1";
   uint16_t *spsm_ref;
 
-  DBusMessage *m = dbus_message_new_method_call(bus_name, path, interface,
+  DBusMessage *m = dbus_message_new_method_call(BLUEZ_SERVICE_NAME, path,
+                                                GATT_CHARACTERISTIC_INTERFACE,
                                                 "ReadValue"),
               *reply;
   DBusMessageIter iter;
@@ -294,10 +284,9 @@ struct ha_device *is_ha_service(DBusMessageIter *iter) {
   DBusMessageIter dict_entries, dict_entry, sub;
 
   assert(dbus_message_iter_get_arg_type(iter) == DBUS_TYPE_STRING);
-  // get interface. eg. 'org.bluez.GattService1'
   dbus_message_iter_get_basic(iter, &interface);
 
-  if (0 != strcmp(interface, "org.bluez.GattService1"))
+  if (0 != strcmp(interface, GATT_SERVICE_INTERFACE))
     return NULL;
 
   dbus_message_iter_next(iter);
@@ -322,7 +311,7 @@ struct ha_device *is_ha_service(DBusMessageIter *iter) {
       assert(dbus_message_iter_get_arg_type(&sub) == DBUS_TYPE_STRING);
       dbus_message_iter_get_basic(&sub, &value);
 
-      if (strncmp(value, "0000fdf0-", 9) == 0)
+      if (strncmp(value, ASHA_UUID_PREFIX, 9) == 0)
         has_ha_uuid = TRUE;
     } else if (strcmp(key, "Device") == 0) {
       assert(dbus_message_iter_has_next(&dict_entry));
@@ -335,7 +324,7 @@ struct ha_device *is_ha_service(DBusMessageIter *iter) {
       device = malloc(sizeof(struct ha_device));
       // Presumably, this is true if we can discover the service
       device->connection_status = CONNECTED;
-      bzero(device, sizeof(struct ha_device));
+      memset(device, '\0', sizeof(struct ha_device));
       strncpy(device->dbus_paths.device_path, value, 100);
     }
 
@@ -354,6 +343,9 @@ struct ha_device *is_ha_service(DBusMessageIter *iter) {
 
 static DBusMessage *get_objects();
 
+/*
+ * Populates a characteristic into a device if the iter is
+ */
 static void populate_characteristic(DBusMessageIter *iter,
                                     char *characteristic_path,
                                     struct ha_device **devices) {
@@ -366,8 +358,9 @@ static void populate_characteristic(DBusMessageIter *iter,
   // get interface. eg. 'org.bluez.GattCharacteristic1'
   dbus_message_iter_get_basic(iter, &interface);
 
-  if (0 != strcmp(interface, "org.bluez.GattCharacteristic1"))
+  if (0 != strcmp(interface, GATT_CHARACTERISTIC_INTERFACE)) {
     return;
+  }
 
   dbus_message_iter_next(iter);
 
@@ -399,19 +392,22 @@ static void populate_characteristic(DBusMessageIter *iter,
       dbus_message_iter_get_basic(&sub, &value);
 
       for (device_iter = devices; (*device_iter != NULL); device_iter++) {
-        if (strncmp((*device_iter)->dbus_paths.service_path, value, 100) == 0)
+        if (strncmp((*device_iter)->dbus_paths.service_path, value, 100) == 0) {
           device = *device_iter;
+        }
       }
     }
 
-    if (!dbus_message_iter_has_next(&dict_entries))
+    if (!dbus_message_iter_has_next(&dict_entries)) {
       break;
+    }
 
     dbus_message_iter_next(&dict_entries);
   }
 
-  if (device == NULL)
+  if (device == NULL) {
     return;
+  }
 
   if (strcmp(uuid, LE_PSM_OUT_UUID) == 0) {
     strncpy(device->dbus_paths.le_psm_out_path, characteristic_path, 100);
@@ -443,10 +439,12 @@ static void handle_object_if_characteristic(DBusMessageIter *iter,
   assert(dbus_message_iter_get_arg_type(iter) == DBUS_TYPE_ARRAY);
   dbus_message_iter_recurse(iter, &dict_entries);
 
+  // Iterate through each {sa{sv}} in a{sa{sv}}
   while (
       (dbus_message_iter_get_arg_type(&dict_entries) == DBUS_TYPE_DICT_ENTRY)) {
     dbus_message_iter_recurse(&dict_entries, &dict_entry);
 
+    // Pass in an sa{sv}
     populate_characteristic(&dict_entry, object_path, devices);
 
     if (!dbus_message_iter_has_next(&dict_entries))
@@ -461,8 +459,9 @@ fetch_and_populate_characteristic_paths(struct ha_device **devices) {
 
   DBusMessageIter iter, dict_entries, dict_entry;
 
-  if (reply == NULL)
+  if (reply == NULL) {
     return;
+  }
 
   dbus_message_iter_init(reply, &iter);
   assert(dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_ARRAY);
@@ -474,13 +473,15 @@ fetch_and_populate_characteristic_paths(struct ha_device **devices) {
     dbus_message_iter_recurse(&dict_entries, &dict_entry);
     handle_object_if_characteristic(&dict_entry, devices);
 
-    if (!dbus_message_iter_has_next(&dict_entries))
+    if (!dbus_message_iter_has_next(&dict_entries)) {
       break;
+    }
     dbus_message_iter_next(&dict_entries);
   }
 }
 
-int add_if_ha_service(DBusMessageIter *iter, struct ha_device **devices) {
+static int add_if_ha_service(DBusMessageIter *iter,
+                             struct ha_device **devices) {
   DBusMessageIter dict_entries, dict_entry;
   char *object_path;
   struct ha_device *device, **device_iter = devices;
@@ -506,8 +507,9 @@ int add_if_ha_service(DBusMessageIter *iter, struct ha_device **devices) {
                device->dbus_paths.service_path);
     }
 
-    if (!dbus_message_iter_has_next(&dict_entries))
+    if (!dbus_message_iter_has_next(&dict_entries)) {
       break;
+    }
     dbus_message_iter_next(&dict_entries);
   }
   return 0;
@@ -540,15 +542,15 @@ static DBusMessage *get_objects() {
 }
 
 void dbus_audio_control_point_start(struct ha_device *device) {
-  log_info("Writing to %s\n", device->dbus_paths.audio_control_point_path);
-  char *bus_name = "org.bluez";
-  char *interface = "org.bluez.GattCharacteristic1";
+  log_info("Writing AudioControlPoint to %s\n",
+           device->dbus_paths.audio_control_point_path);
 
   uint8_t data[] = {START, G722_16K_HZ, UNKNOWN, 0, OTHER_DISCONNECTED};
 
   DBusMessage *m = dbus_message_new_method_call(
-                  bus_name, device->dbus_paths.audio_control_point_path,
-                  interface, "WriteValue"),
+                  BLUEZ_SERVICE_NAME,
+                  device->dbus_paths.audio_control_point_path,
+                  GATT_CHARACTERISTIC_INTERFACE, "WriteValue"),
               *reply;
   DBusMessageIter iter;
 
@@ -574,16 +576,13 @@ void dbus_audio_control_point_start(struct ha_device *device) {
 
 struct ha_device **find_devices() {
   /*
-   * Send a message to ObjectManager
-   * GetManagedObjects
-   * Read dict
-   * Per entry:
-   *   1. Scan dict for org.bluez.GattService1 or
-   * org.bluez.GattCharacteristic1
-   *   2. When a Service (0x0000fdf0) is found, accumulate the key, i.e.
-   * /org/bluez/hciX/dev_pp_qq_rr_ss/serviceNN under the device 'side'
-   *   3. When a Characteristic of a service we have accumulated is found,
-   * record the path under the device
+   * 1. Look up objects in bluez
+   *
+   * 2. Scan for objects we are interested in, i.e. services (with uuid
+   * 0x0000fdf0) and their characteristics and record them under their
+   * respective devices.
+   *
+   * 3. Return this list of devices
    */
   DBusMessageIter iter;
   DBusMessageIter dict_entries;
@@ -591,11 +590,12 @@ struct ha_device **find_devices() {
 
   DBusMessage *reply = get_objects();
 
-  struct ha_device **devices = calloc(sizeof(struct ha_device *), 20);
-  bzero(devices, sizeof(struct ha_device *) * 20);
+  struct ha_device **devices = calloc(sizeof(struct ha_device *), MAX_DEVICES);
+  memset(devices, '\0', sizeof(struct ha_device *) * MAX_DEVICES);
 
-  if (reply == NULL)
+  if (reply == NULL) {
     return devices;
+  }
 
   dbus_message_iter_init(reply, &iter);
   assert(dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_ARRAY);
@@ -607,31 +607,13 @@ struct ha_device **find_devices() {
 
     add_if_ha_service(&dict_entry, devices);
 
-    if (!dbus_message_iter_has_next(&dict_entries))
+    if (!dbus_message_iter_has_next(&dict_entries)) {
       break;
+    }
     dbus_message_iter_next(&dict_entries);
   }
 
   fetch_and_populate_characteristic_paths(devices);
-  log_info("Done.\n");
+  log_info("Found devices.\n");
   return devices;
 }
-
-/*
- * On load:
- *  1. Find all GattServices (0xfdf0)
- *  2. Find all GattCharacteristics for those services.
- *  3. Query the readable GattCharacteristics.
- *  4. Pair devices by hisync id
- *
- * Updates:
- *
- * When a new 0xfdf0 service is added
- *    1. Check if hisync id matches existing device, pair them together
- *    2. Else, create new device
- * When a 0xfdf0 service is removed
- *    1. Check if other device in pair exists, change 'stream' to mux into
- * single channel
- *    2. Else, remove 'stream'
- *
- */
