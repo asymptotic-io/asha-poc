@@ -19,6 +19,14 @@ static void print_help_message() {
   log_info("Usage: %s [BD_ADDR]\n", EXECUTABLE_NAME);
 }
 
+static void underscorify(char *addr) {
+  while (*addr) {
+    if (*addr == ':')
+      *addr = '_';
+    addr++;
+  }
+}
+
 int main(int argc, char **argv) {
   if (argc <= 1) {
     print_help_message();
@@ -27,6 +35,7 @@ int main(int argc, char **argv) {
 
   char bd_addr[20];
   strncpy(bd_addr, argv[1], 20);
+  underscorify(bd_addr);
 
   int loop_fd = loop_init();
   int dbus_err = dbus_init(loop_fd);
