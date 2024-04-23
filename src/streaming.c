@@ -67,15 +67,13 @@ int act_once(struct ha_device *device) {
   int res = 0;
   uint8_t sequence_counter = (device->iteration % SEQUENCE_COUNTER_LIMIT);
 
-  bytes_processed = read(device->source, device->buffer, BUFFER_LENGTH);
+  memcpy(device->buffer, &sequence_counter, 1);
+  bytes_processed = read(device->source, device->buffer + 1, BUFFER_LENGTH);
 
   if (bytes_processed < 0) {
     log_info("File read failed: %zd (%s)\n", bytes_processed, strerror(errno));
     return -1;
   }
-
-  memcpy(device->buffer, &sequence_counter, 1);
-  memcpy(device->buffer + 1, device->buffer, BUFFER_LENGTH);
 
   bytes_processed = send(device->socket, device->buffer, device->sdulen, 0);
 
