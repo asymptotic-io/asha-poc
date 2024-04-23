@@ -227,7 +227,7 @@ static void dbus_read_ro_properties(char *path,
     return;
   }
 
-  memcpy(&properties, properties_ref, sizeof(struct ha_properties));
+  memcpy(properties, properties_ref, sizeof(struct ha_properties));
   debug_properties(properties_ref);
   dbus_message_unref(reply);
 
@@ -562,7 +562,7 @@ void dbus_audio_control_point_start(struct ha_device *device) {
       dbus_connection_send_with_reply_and_block(conn, m, REPLY_TIMEOUT, &err);
   if (dbus_error_is_set(&err)) {
     log_info("Error: failed to write AudioControlPoint: %s\n",
-             dbus_message_get_error_name(reply));
+             err.message);
     return;
   }
 

@@ -11,7 +11,7 @@ static int loop_fd;
 
 int loop_init() {
   log_info("loop: Initializing\n");
-  loop_fd = epoll_create1(0);
+  loop_fd = epoll_create1(EPOLL_CLOEXEC);
   return loop_fd;
 }
 
