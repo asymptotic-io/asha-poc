@@ -10,14 +10,23 @@
 
 // Set based on the spec: https://source.android.com/devices/bluetooth/asha
 #define MTU 167
+#define CREDITS 8
 
-static void set_mtu(int s, int mtu) {
+static void set_options(int s, int mtu) {
   struct l2cap_options opts = {0};
   int err = 0;
-  unsigned int size = sizeof(opts.imtu);
+  unsigned int value, size = sizeof(opts.imtu);
 
   opts.omtu = opts.imtu = mtu;
+  opts.mode = BT_MODE_LE_FLOWCTL;
   log_info("Setting sockopts\n");
+
+  err = setsockopt(s, SOL_BLUETOOTH, BT_SNDMTU, &opts.omtu, size);
+  if (err) {
+    log_info("Unable to set send mtu. %s (%d)\n", strerror(errno), errno);
+  } else {
+    log_info("Set send mtu\n");
+  }
 
   err = setsockopt(s, SOL_BLUETOOTH, BT_RCVMTU, &opts.imtu, size);
   if (err) {
@@ -26,12 +35,30 @@ static void set_mtu(int s, int mtu) {
     log_info("Set recv mtu\n");
   }
 
-  err = setsockopt(s, SOL_BLUETOOTH, BT_SNDMTU, &opts.imtu, size);
+  err = setsockopt(s, SOL_BLUETOOTH, BT_MODE, &opts.mode, sizeof(opts.mode));
   if (err) {
-    log_info("Unable to set send mtu. %s (%d)\n", strerror(errno), errno);
+    log_info("Unable to set flowctl mode %s (%d)\n", strerror(errno), errno);
   } else {
-    log_info("Set send mtu\n");
+    log_info("Set flowctl mode\n");
   }
+
+#if 0
+  value = mtu * CREDITS;
+  err = setsockopt(s, SOL_SOCKET, SO_RCVBUF, &value, sizeof(value));
+  if (err) {
+    log_info("Unable to set rcvbuf %s (%d)\n", strerror(errno), errno);
+  } else {
+    log_info("Set rcvbuf\n");
+  }
+
+  value = mtu * CREDITS;
+  err = setsockopt(s, SOL_SOCKET, SO_SNDBUF, &value, sizeof(value));
+  if (err) {
+    log_info("Unable to set sndbuf %s (%d)\n", strerror(errno), errno);
+  } else {
+    log_info("Set sndbuf\n");
+  }
+#endif
 }
 
 static void strsub(char *str, char c, char replacement, int len) {
@@ -78,7 +105,7 @@ int l2cap_connect(char *bd_addr_raw, uint16_t psm) {
   addr.l2_psm = htobs(psm);
   strsub(bd_addr, '_', ':', ADDR_LENGTH);
   str2ba(bd_addr, &addr.l2_bdaddr);
-  set_mtu(s, MTU);
+  set_options(s, MTU);
 
   status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
 
