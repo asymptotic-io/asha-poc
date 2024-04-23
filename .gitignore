@@ -1,3 +1,4 @@
 *.o
 bin/*
 .cache/
+.gdb_history
